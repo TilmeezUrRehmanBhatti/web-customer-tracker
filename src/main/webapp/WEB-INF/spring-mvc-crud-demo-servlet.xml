@@ -31,8 +31,8 @@
           destroy-method="close">
         <property name="driverClass" value="org.postgresql.Driver"/>
         <property name="jdbcUrl"
-                  value="jdbc:postgresql://ec2-52-212-228-71.eu-west-1.compute.amazonaws.com:5432/d5qnu5vfhts8c2&amp;serverTimezone=UTC"/>
-        <property name="user" value="springfwzrrcowsbvqklstudent"/>
+                  value="jdbc:postgresql://ec2-52-212-228-71.eu-west-1.compute.amazonaws.com:5432/d5qnu5vfhts8c2"/>
+        <property name="user" value="fwzrrcowsbvqkl"/>
         <property name="password" value="78c90ca46782fb3e9a93c90172e8b69e67d49d0135301a54ba46f89791ca13f7"/>
 
         <!-- these are connection pool properties for C3P0 -->
