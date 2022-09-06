@@ -351,3 +351,107 @@ File:spring-mvc-crud-demo-servlet.xml
 <mvc:resources loaction="/js/" mapping="/js/*" />
 <mvc:resources loaction="/pdf/" mapping="/pdf/*" />
 ```
+
+**Refactor: @GetMapping and @PostMapping - Overview**
+
+HTTP Request / Response
+
+<img src="https://user-images.githubusercontent.com/80107049/188727403-2df56185-590d-4cf4-8fed-26c600fd3172.png" width = 300 />
+
+**Most Commonly Used HTTP Methods**
+
+| Method   | Description                            |
+| -------- | -------------------------------------- |
+| **GET**  | Requests data from from given resource |
+| **POST** | Submits data to given resource         |
+| others   | ...                                    |
+
+
+**Sending Data with Get method**
+
+```XML
+<form action="processForm" method="GET" ...>
+  ...
+</form>
+```
++ Form data is added to end of URL as name/value pairs
+  + **theUrl**?**field1=value1**&**field2=value2...**
+
+**Handling Form Submission**
+
+```JAVA
+@RequestMapping("/processForm")
+public String processForm(...) {
+  ...
+}
+```
++ This mapping handles **ALLHTTP** methods
+  + GET,POST, etc...
+
+**Constrain the Request Mapping . GET**
+
+```JAVA
+@RequestMapping(path="/processForm", method=RequestMethod.Get)
+public String processForm(...) {
+ ... 
+}
+```
++ This mapping **ONLY** handles **GET** method
++ Any other HTTP REQUEST method will get rejected
+
+_Annotation Short-Cut_
+
+```JAVA 
+@GetMapping("/processForm")
+public String processForm(...) {
+ ... 
+}
+```
++ New annotation Added in Spring 4.4: **@GetMapping**
++ This mapping **Only** handles **GET** method
++ Any other HTTP REQUEST method will get rejected
+
+**Sending Data with POST method**
+```JSP
+<form action="processForm" method="POST" ...>
+  ...
+</form>
+```
+
++ Form data is passed in the body of HTTP request message
+
+<img src="https://user-images.githubusercontent.com/80107049/188727328-9f7f7afd-56f0-4fdf-a46c-25f038740ce6.png" width=400 />
+
+**Constrain the Request Mapping - POST**
+
+```JAVA
+@RequestMapping(path="/processForm", method=RequestMethod.POST)
+public String processForm(...) {
+ ... 
+}
+```
++ This mapping **ONLY** handles **POST** method
++ Any other HTTP REQUEST method will get rejected
+
+_Annotation Short-cut_
+
+```JAVA 
+@PostMapping("/processForm")
+public String processForm(...) {
+ ... 
+}
+```
++ New annotation added in Spring 4.3: **@PostMapping**
++ This mapping **ONLY** handles **POST** method
++ Any other HTTP REQUEST method will get rejected
+
+
+Which one ??
+
+| **GET**                    | **POST**                      |
+| -------------------------- | ----------------------------- |
+| Good for debugging         | Can't bookmark or email URL   |
+| Bookmark or email URL      | No limitations on data length |
+| Limitations on data length | Can also send binary data     |
+
+
