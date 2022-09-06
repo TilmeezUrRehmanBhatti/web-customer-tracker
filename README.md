@@ -455,3 +455,104 @@ Which one ??
 | Limitations on data length | Can also send binary data     |
 
 
+**Refactor: Add a Service Layer - Overview**
+
+<img src="inkdrop://file:g4RmnO3q4" width=400/>
+
+**Purpose of Service Layer**
++ **Service Facade** design pattern
++ Intermediate layer for custom business logic
++ Integrate data form multiple sources (DAO/repositories)
+
+**Integrate Multiple Data Sources**
+
+<img src="https://user-images.githubusercontent.com/80107049/188752643-a776d07a-b4ca-4b86-b26f-96df0393876f.png" width = 500 />
+
+**Specialized Annotation for Services**
++ Spring provides the **@Service** annotation
+
+<img src="https://user-images.githubusercontent.com/80107049/188752579-84c8f063-6016-408a-9b28-eda4d30d3640.png" wdth = 500 />
+
++ **@Service** applied to Service implementations
++ Spring will automatically register the Service implementation
+  + thanks to component-scanning
+
+**Customer Service**
+1. Definer Service interface
+2. Define Service implementation
+  + Inject the CustomDAO
+
+_Step 1: Define Service interface_
+```JAVA
+public interface CustomerService {
+  public List<Customer> getCustomers();
+}
+```
+
+_Step 2:Define Service implementation_
+
+```JAVA
+@Service
+public class CustomerServiceImpl implements CustomerService {
+  
+  @Autowired
+  private CustomerDAO customerDAO;
+  
+  @Transactional
+  public List<Customer> getCustomer() {
+   ... 
+  }
+}
+```
+
+**Update for the DAO implementation**
+
+```JAVA
+@Repository
+public class CustomerDAOImpl implements CustomerDAO {
+  
+  @Autowired
+  private SessionFactory sessionFactory;
+  
+                          // Remove @Transactional 
+  public List<Customer> getCustomers() {
+   ... 
+  }
+}
+```
++ **@Transactional** now defined at service layer
+
+**Question**
+
+Why do we have to create Service layer what has the same functions as DAO layer? Is it necessary to create all this layers?
+
+
+**Answer**
+
+Agreed, there are a lot of layers. However this is the architecture that you will see on real world, complex Spring projects.
+
+In our example, it is fairly simple. We simply delegate the calls to the DAO. So I agree, you could remove the service layer in this simple example and have controller call dao directly.
+
+However, we added the service layer to leverage the [**Service Layer design pattern**](https://en.wikipedia.org/wiki/Service_layer_pattern). On a much more complex project, we could use the service layer to integrate multiple data sources (daos) and perform transaction management between the two. So, for a simple project that we have here ... this probably overkill.
+
+And here is a another scenario where you would like to perform transaction management at the service layer.
+
+You can use @Transactional at the service layer if you want DAO methods to run in the same transaction.
+
+Say for example we have
+
+BankDAO
+
+\- deposit(...)
+
+\- withdraw(...)
+
+If we are transferring funds, we want that to run in the same transaction. By making use of @Transactional at service layer, then we can have this transactional support and both methods will run in the same transaction. This would call deposit() and withdraw(). If either of those methods failed then we'd want to roll the transaction back.
+
+However, if we had @Transactional at DAO level instead of service level, then the methods deposit() and withdraw() would run in separate transactions. If one of them failed, then we would not be able to rollback the other method ... because it is in a separate transaction.
+
+So that's one real-time project use case for applying @Transactional at the Service layer.
+
+\===
+
+Of course, in your personal project, there is no strict requirement to use layers. In fact, there is no requirement to use DAO. You could add all of your code to one controller class. But from an architectural point of view, that would result in a poor design.
