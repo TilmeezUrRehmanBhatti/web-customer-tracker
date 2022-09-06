@@ -312,7 +312,7 @@ public class CustomerDAOImpl implements CustomerDAO {
 
 **Development Process**
 1. Place CSS in a `resources` directory
-  + Directory name is configurable
+   + Directory name is configurable
 2. Configure Spring to serve up `resources`
 3. Reference CSS in your JSP
 
@@ -480,7 +480,7 @@ Which one ??
 **Customer Service**
 1. Definer Service interface
 2. Define Service implementation
-  + Inject the CustomDAO
+   + Inject the CustomDAO
 
 _Step 1: Define Service interface_
 ```JAVA
@@ -556,3 +556,13 @@ So that's one real-time project use case for applying @Transactional at the Serv
 \===
 
 Of course, in your personal project, there is no strict requirement to use layers. In fact, there is no requirement to use DAO. You could add all of your code to one controller class. But from an architectural point of view, that would result in a poor design.
+
+
+
+**Add Customer - Overview**
+
+1. **Update list-customer.jsp**
+   1. New "Add Customer" button
+2. **Create HTML form for new customer**
+3. **Process Form Data**
+   1. Controller -> Service -> DAO

@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Repository
-public class CustomerDAOImpl implements CustomerDAO{
+public class CustomerDAOImpl implements CustomerDAO {
 
     // need to inject the session factory
     @Autowired
@@ -23,15 +23,28 @@ public class CustomerDAOImpl implements CustomerDAO{
         // get the current hibernate session
         Session currentSession = sessionFactory.getCurrentSession();
 
-        // create a  query
+
+        // create a  query ... sort by the last name
         Query<Customer> theQuery =
-                currentSession.createQuery("from Customer ", Customer.class);
+                currentSession.createQuery("from Customer ORDER BY lastName",
+                        Customer.class);
 
         // execute query and get result list
         List<Customer> customers = theQuery.getResultList();
 
         // return the result
         return customers;
+    }
+
+    @Override
+    public void saveCustomer(Customer theCustomer) {
+
+        // get current hibernate session
+        Session currentSession = sessionFactory.getCurrentSession();
+
+
+        // save the customer
+        currentSession.save(theCustomer);
     }
 }
 
