@@ -302,3 +302,52 @@ public class CustomerDAOImpl implements CustomerDAO {
   }
 }
 ```
+
+**Adding CSS to Spring MVC App**
+
+*First Version - Plain*
+
+<img src="https://user-images.githubusercontent.com/80107049/188720703-e9b277e3-f16c-4443-add1-1e02f3c8d57d.png" width = 500 />
+
+
+**Development Process**
+1. Place CSS in a `resources` directory
+  + Directory name is configurable
+2. Configure Spring to serve up `resources`
+3. Reference CSS in your JSP
+
+_Step 2:Configure Spring to serve up "resources" directory_
+
+File: spring-mvc-crud-demo-servlet.xml
+```XML
+<mvc:resources loaction="/resouces/" mapping="/resources/*" />
+```
+
++ `loaction="/resouces/"` physical directory name
++ `mapping="/resources/*" ` url mapping, * to recurse subdirectories
+
+_Step 3:Reference CSS in your JSP_
+
+File:list-customers.jsp
+```JSP
+<head>
+  <title>List Customers</title>
+  
+  <link type="text/css"
+        rel="stylesheet"
+        href="${pageContext.request.contextPath}/resources/css/style.css">
+  
+</head>
+```
+
++ In href `${pageContext.request.contextPath}`use proper app name , `/resources/css/style.css` is our style sheet
+
+**Alternate Directory Structure**
+
+File:spring-mvc-crud-demo-servlet.xml
+```XML
+<mvc:resources loaction="/resouces/" mapping="/resources/*" />
+<mvc:resources loaction="/images/" mapping="/images/*" />
+<mvc:resources loaction="/js/" mapping="/js/*" />
+<mvc:resources loaction="/pdf/" mapping="/pdf/*" />
+```
