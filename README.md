@@ -174,3 +174,131 @@ public class Customer {
 + `property name="packagesToScan"` Scan the package(s) and look for annotated @Entity classes
   + For multiple packages, Give a comma-delimited list
 
+**List Customers - Developing Hibernate DAO**
++ For Hibernate , our DAO meeds a Hibernate SessionFactory
+
+<img src="https://user-images.githubusercontent.com/80107049/188639627-59792a33-f060-49dd-9dd1-f9efa5330eaa.png" width=500 />
+
+**Hibernate Session Factory**
++ Our Hibernate Session Factory needs a Data Source
+  + The data source defines database connection info
+
+<img src="https://user-images.githubusercontent.com/80107049/188639489-6dd27da3-4127-4110-a329-d25d476adf88.png" width=500 />
+
+> **Dependencies**
+> > These are all dependencies!
+> >
+>> We will wire them together with Dependency Injection (ID)
+>>
+
+**Data Source**
+```XML
+ <bean id="myDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+          destroy-method="close">
+        <property name="driverClass" value="org.postgresql.Driver"/>
+        <property name="jdbcUrl"
+                  value="jdbc:postgresql://ec2-52-212-228-71.eu-west-1.compute.amazonaws.com:5432/d5qnu5vfhts8c2&amp;serverTimezone=UTC"/>
+        ... user id, password etc ...
+</bean>
+```
+
+**Session Factory**
+```XML
+<bean id="sessionFactory"
+      class="org.springframwork.orm.hibernate5.LocalSessionFactoryBean">
+  
+  <proerty name="dataSource" ref="myDataSource" />
+  
+  ...
+</bean>
+```
++ ` ref="myDataSource"` is the bean id that is define in data source
+
+**Customer DAO**
+1. Define DAO interface
+2. Define DAO implementation
+  + Inject the session factory
+
+_Step 1:Define DAO interface_
+```Java
+public interface CustomerDAO {
+  public List<Customer> getCustomer();
+}
+```
+
+_Step 2:Define DAO implementation_
+```JAVA
+publiv class CustomerDAOImpl implements CustomerDAO {
+  
+  @Autowired
+  private SessionFactory sessionFactory;
+  
+  public List<Customer> getCustomers() {
+   ... 
+  }
+}
+```
++ @Autowired for Dependency injection
+  + Spring will look in the Config for the bean id "sessionFactory"
+
+**Spring @Transactional**
++ Spring provides an **@Transactional** annotation
++ **Automatically** begin and end a transaction for Hibernate code
+  + No need for to explicitly do this in code
+
+- Standalone Hibernate code
+```Java
+// start a transaction 
+session.beginTransaction();
+
+// DO HIBERNATE STUFF
+// ...
+
+// commit transaction
+session.getTransaction().commit();
+```
+- Spring @transactional
+```JAVA
+@Transactional
+public List<Customer> getCustomer() {
+  
+  // get the current hibernate session
+  Session currentSession = sessionFactory.getCurrentSession();
+  
+  // create a query
+  Query<Customer> theQuery =
+    currentSession.createQuery("from Customer", Customer.class);
+  
+  // get the result list
+  List<Customer> customers = theQuy.getResultList();
+  
+  return customers;
+}
+```
+
+**Specialized Annotation for DAOs**
++ Spring provides the **@Repository** annotation
+
+<img src="https://user-images.githubusercontent.com/80107049/188639395-473eb7b3-fe30-4cad-9401-d3c1f1c15023.png" width=500 />
+
+
++ Applied to DAO implementations
++ Speing will automatically register the DAO implementation
+  + thanks to component-scanning
+
++ Spring also provides translation of any JDBC related exception
+
+**Updates for the DAO implementation**
+```JAVA
+@Repository
+public class CustomerDAOImpl implements CustomerDAO {
+  
+  @Autowired
+  private SessionFactory sessionFactory;
+  
+  @Transactional
+  public List<Customer> getCustomers() {
+   ... 
+  }
+}
+```
