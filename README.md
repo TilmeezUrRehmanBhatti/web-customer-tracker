@@ -566,3 +566,15 @@ Of course, in your personal project, there is no strict requirement to use layer
 2. **Create HTML form for new customer**
 3. **Process Form Data**
    1. Controller -> Service -> DAO
+
+
+**Update Customer**
+
+1. **Update list-customer.jsp**
+  1. New "Update"link
+2. **Create customer-form.jsp**
+  1. Prepopulate the form
+3. **Process form data**
+  1. **Controller -> Service -> DAO**
+         
+         
