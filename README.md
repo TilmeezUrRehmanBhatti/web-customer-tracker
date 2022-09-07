@@ -95,7 +95,7 @@ _Step 4:Enable configuration of transactional annotations_
 + Update a Customer
 + Delete a Customer
 
-<img src="at last" width=600 />
+<img src="https://user-images.githubusercontent.com/80107049/188763720-d1ec38d0-c497-4b03-8661-ead3073be3e1.png" width=600 />
 
 
 **Customer Data Acess Object**
@@ -576,5 +576,137 @@ Of course, in your personal project, there is no strict requirement to use layer
   1. Prepopulate the form
 3. **Process form data**
   1. **Controller -> Service -> DAO**
-         
-         
+
+
+**Add Search support - Overview of Development Process**
+1. Create the HTML form
+2. Add mapping to the controller
+3. Add methods in the service layer to delegate to DAO
+4. Add method in the DAO to perfom search         
+
+
+**1. Create the HTML form**
+
+You need to add a search form to read the user input and submit it to your Spring controller mapping
+
+a. Edit the file: list-customers.jsp
+
+b. We'll need to use Spring FORM tags, so at the  top of the file, add the following taglib reference
+
+```JAVA
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>```
+
+
+c. Now add a search form right after the Add Customer button
+```JSP
+<!--  add a search box -->
+<form:form action="search" method="GET">
+  Search customer: <input type="text" name="theSearchName" />
+  <input type="submit" value="Search" class="add-button" />
+</form:form>
+```
+
+**2. Add mapping to the controller**
+
+You need to add a mapping to handle the search form submission
+
+a. Edit the file: CustomerController.java
+
+b. Add the new mapping and method
+
+```JAVA
+  @GetMapping("/search")
+    public String searchCustomers(@RequestParam("theSearchName") String theSearchName,
+                                    Model theModel) {
+        // search customers from the service
+        List<Customer> theCustomers = customerService.searchCustomers(theSearchName);
+                
+        // add the customers to the model
+        theModel.addAttribute("customers", theCustomers);
+        return "list-customers";        
+    }
+```
+c. You may have syntax errors on the customerService, but we'll resolve that in the next section.
+
+\---
+
+**3. Add methods in the service layer to delegate to DAO**
+
+You need to add methods in the service layer to delegate calls to the DAO
+
+a. Edit the file: CustomerService.java
+
+b. Add the method declaration
+```JAVA
+public List<Customer> searchCustomers(String theSearchName);
+```
+
+
+c. Edit the file: CustomerServiceImpl.java
+
+d. Add the method:
+
+```JAVA
+  @Override
+    @Transactional
+    public List<Customer> searchCustomers(String theSearchName) {
+        return customerDAO.searchCustomers(theSearchName);
+    }
+```
+
+e. You may have syntax errors on the customerDAO, but we'll resolve that in the next section.
+
+---
+
+**4. Add method in the DAO to perfom search**
+
+Now, we'll add methods in the DAO layer to search for a customer by first name or last name
+
+a. Edit the file: CustomerDAO.java
+
+b. Add the method declaration
+``` JAVA
+public List<Customer> searchCustomers(String theSearchName);
+```
+
+c. Edit the file: CustomerDAOImpl.java
+
+d. Add the method:
+```JAVA
+   @Override
+    public List<Customer> searchCustomers(String theSearchName) {
+        // get the current hibernate session
+        Session currentSession = sessionFactory.getCurrentSession();
+        
+        Query theQuery = null;
+        
+        //
+        // only search by name if theSearchName is not empty
+        //
+        if (theSearchName != null && theSearchName.trim().length() > 0) {
+            // search for firstName or lastName ... case insensitive
+            theQuery =currentSession.createQuery("from Customer where lower(firstName) like :theName or lower(lastName) like :theName", Customer.class);
+            theQuery.setParameter("theName", "%" + theSearchName.toLowerCase() + "%");
+        }
+        else {
+            // theSearchName is empty ... so just get all customers
+            theQuery =currentSession.createQuery("from Customer", Customer.class);            
+        }
+        
+        // execute query and get result list
+        List<Customer> customers = theQuery.getResultList();
+                
+        // return the results        
+        return customers;
+        
+    }
+```
+In this method, we need to check "theSearchName", this is the user input. We need to make sure it is not empty. If it is not empty then we will use it in the search query.  If it is empty, then we'll just ignore it and simply return all of the customers.
+
+For the condition when "theSearchName" is not empty, then we use it to compare against the first name or last name. We also make use of the "like" clause and the "%" wildcard characters. This will allow us to search for substrings. For example, if we have customers with last name of "Patel", "Patterson" ... then we can search for "Pat" and it will match on those names.
+
+Also, notice the query uses the lower case version of the values to make a case insensitive search. If you'd like to make a case sensitive search, then simply remove the lower references.
+
+You can read more on the HQL "like" clause here:
+http://docs.jboss.org/hibernate/orm/5.2/userguide/html_single/Hibernate_User_Guide.html#hql-like-predicate
+
