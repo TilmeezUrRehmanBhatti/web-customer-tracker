@@ -17,8 +17,8 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public List<Customer> getCustomers() {
-        return customerDAO.getCustomers(); // Delegate calls to DAO
+    public List<Customer> getCustomers(int theSortField) {
+        return customerDAO.getCustomers(theSortField); // Delegate calls to DAO
     }
 
     @Override
@@ -30,9 +30,9 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     @Transactional
-    public Customer getCustomers(int theId) {
+    public Customer getCustomer(int theId) {
 
-        return customerDAO.getCustomers(theId);
+        return customerDAO.getCustomer(theId);
     }
 
     @Override

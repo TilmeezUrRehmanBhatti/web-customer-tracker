@@ -710,3 +710,218 @@ Also, notice the query uses the lower case version of the values to make a case 
 You can read more on the HQL "like" clause here:
 http://docs.jboss.org/hibernate/orm/5.2/userguide/html_single/Hibernate_User_Guide.html#hql-like-predicate
 
+
+
+**Add Sorting support - Overview of Development Process**
+
+1. Create a Utility class for sort constants
+
+2. In JSP page, add sort links for column headers
+
+3. Update controller to read sort field
+
+4. Update method in the service layer to delegate to DAO
+
+5. Update method in the DAO to get customers sorted by given field
+
+
+DETAILED STEPS
+
+1. Create a Utility class for sort constants
+
+This utility class will hold constant values for the sort fields. The values can be anything, as long as you stay consistent in the app.
+
+File:SortUtils.java
+
+```JAVA
+ 
+public interface SortUtils {
+	
+	public static final int FIRST_NAME = 1;
+	public static final int LAST_NAME = 2;
+	public static final int EMAIL = 3;
+ 
+}
+```
+
+2. In JSP page, add sort links for column headers
+
+In this page, the user can click on the "First Name" column header and it will sort the data accordingly. The links will have an embedded a sort key.
+
+The code below defines a link for the first name. Note the use of SortUtils.FIRST_NAME.
+
+File:list-customers.jsp
+```JSP
+<%@ page import="com.luv2code.springdemo.util.SortUtils" %>
+...
+				<!-- construct a sort link for first name -->
+				<c:url var="sortLinkFirstName" value="/customer/list">
+					<c:param name="sort" value="<%= Integer.toString(SortUtils.FIRST_NAME) %>" />
+				</c:url>
+        ```
+We can do a similar thing for last name and email.
+```JSP
+				<!-- construct a sort link for last name -->
+				<c:url var="sortLinkLastName" value="/customer/list">
+					<c:param name="sort" value="<%= Integer.toString(SortUtils.LAST_NAME) %>" />
+				</c:url>					
+ 
+				<!-- construct a sort link for email -->
+				<c:url var="sortLinkEmail" value="/customer/list">
+					<c:param name="sort" value="<%= Integer.toString(SortUtils.EMAIL) %>" />
+				</c:url>					
+```
+
+Then for the column headings, we set up the `<a href>` using the the appropriate link.
+
+```JSP
+				<tr>
+					<th><a href="${sortLinkFirstName}">First Name</a></th>
+					<th><a href="${sortLinkLastName}">Last Name</a></th>
+					<th><a href="${sortLinkEmail}">Email</a></th>
+					<th>Action</th>
+				</tr>
+```
+
+3. Update controller to read sort field
+
+In the CustomerController, we need to update the method to read the sort field. If not sort field is provided, then we just default to SortUtils.LAST_NAME.
+
+File:CustomerController.java
+
+```JAVA
+	@GetMapping("/list")
+	public String listCustomers(Model theModel, @RequestParam(required=false) String sort) {
+		
+		// get customers from the service
+		List<Customer> theCustomers = null;
+		
+		// check for sort field
+		if (sort != null) {
+			int theSortField = Integer.parseInt(sort);
+			theCustomers = customerService.getCustomers(theSortField);			
+		}
+		else {
+			// no sort field provided ... default to sorting by last name
+			theCustomers = customerService.getCustomers(SortUtils.LAST_NAME);
+		}
+		
+		// add the customers to the model
+		theModel.addAttribute("customers", theCustomers);
+		
+		return "list-customers";
+	}
+```
+
+
+4. Update method in the service layer to delegate to DAO
+
+Now, we update the getCustomers(int theSortField) method to accept an int parameter. This is for the service interface and service implementation.
+
+File:CustomService.java
+```JAVA
+public interface CustomerService {
+ 
+	public List<Customer> getCustomers(int theSortField);
+ 
+	public void saveCustomer(Customer theCustomer);
+ 
+	public Customer getCustomer(int theId);
+ 
+	public void deleteCustomer(int theId);
+	
+}
+```
+
+File:CustomerServiceImpl.java
+```JAVA
+@Service
+public class CustomerServiceImpl implements CustomerService {
+ 
+	// need to inject customer dao
+	@Autowired
+	private CustomerDAO customerDAO;
+	
+	@Override
+	@Transactional
+	public List<Customer> getCustomers(int theSortField) {
+		return customerDAO.getCustomers(theSortField);
+	}
+ 
+	...
+}
+
+
+5. Update method in the DAO to get customers sorted by given field
+
+In DAO interface, update the method to accept integer
+
+File: CustomerDAO.java
+
+package com.luv2code.springdemo.dao;
+ 
+import java.util.List;
+ 
+import com.luv2code.springdemo.entity.Customer;
+import com.luv2code.springdemo.util.SortUtils;
+ 
+public interface CustomerDAO {
+ 
+	public List<Customer> getCustomers(int theSortField);
+	...
+}
+```
+
+In the CustomerDAOImpl.java, the getCustomers(...) method has theSortField parameter. It will determine the sort field name based on the parameter.
+
+File:CustomerDAOImpl.java
+
+```JAVA
+@Repository
+public class CustomerDAOImpl implements CustomerDAO {
+ 
+	// need to inject the session factory
+	@Autowired
+	private SessionFactory sessionFactory;
+			
+	@Override
+	public List<Customer> getCustomers(int theSortField) {
+		
+		// get the current hibernate session
+		Session currentSession = sessionFactory.getCurrentSession();
+				
+		// determine sort field
+		String theFieldName = null;
+		
+		switch (theSortField) {
+			case SortUtils.FIRST_NAME: 
+				theFieldName = "firstName";
+				break;
+			case SortUtils.LAST_NAME:
+				theFieldName = "lastName";
+				break;
+			case SortUtils.EMAIL:
+				theFieldName = "email";
+				break;
+			default:
+				// if nothing matches the default to sort by lastName
+				theFieldName = "lastName";
+		}
+		
+		// create a query  
+		String queryString = "from Customer order by " + theFieldName;
+		Query<Customer> theQuery = 
+				currentSession.createQuery(queryString, Customer.class);
+		
+		// execute query and get result list
+		List<Customer> customers = theQuery.getResultList();
+				
+		// return the results		
+		return customers;
+	}
+ 
+	...
+}
+```
+
+As you can see, there is a switch statement for theSortField. Based on the value, then it will use field name of "firstName", "lastName" etc. If the values don't match, then we default to sorting by lastName.

@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface CustomerDAO {
 
-    public List<Customer> getCustomers();
+    public List<Customer> getCustomers(int theSortField);
 
     public void saveCustomer(Customer theCustomer);
 
-    public Customer getCustomers(int theId);
+    public Customer getCustomer(int theId);
 
     public void deleteCustomer(int theId);
 
