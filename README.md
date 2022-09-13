@@ -929,3 +929,59 @@ public class CustomerDAOImpl implements CustomerDAO {
 ```
 
 As you can see, there is a switch statement for theSortField. Based on the value, then it will use field name of "firstName", "lastName" etc. If the values don't match, then we default to sorting by lastName.
+
+
+## AOP: Add AOP logging to Spring MVC
+
+**Logging Aspect**
+
+<img src="https://user-images.githubusercontent.com/80107049/189890969-15d917ed-533c-45b0-8b62-377b9a69aab3.png" width="500" />
+
+
+**Development Process**
+1. Add AspectJ to web project
+2. Enable AspectJ Auto Proxy
+3. Create Aspect
+    1. Add Logging support
+    2. Setup pointcut declaration
+    3. Add @Before advice
+    4. Add @AfterReturning advice
+
+_Step 1: Add AspectJ repository to web project_
++ All Spring project require AspectJ for AOP support
+
+
+_Step 2:Enable AspectJ Auto Proxy(XML)_
++ Set up XML namespaces and schemas
++ `<aop:aspectj-autoproxy />` For processing @Aspect classes
+
+```XML
+<beans xmln="http://www.springframwork.org/schema/beans"
+       ...
+       xmlns:aop="http://www.springframwork.org/schema/aop"
+       xsi:schemaLocation="
+                           ...
+                           http://www.springframework.org/schema/aop
+                           http://222.springframework.org/schema/aop/spring-aop.xsd">
+  
+  <!-- Add AspectJ autoproxy support for AOP -->
+  <aop:aspectj-autoproxy />
+  
+  ...
+</beans>
+```
+
+**Enable AspectJ Auto Proxy (Java)**
++ If we wantto use pure Java configuration then use the annotation
+    + For processing @Aspect classes
+
+```JAVA
+        @EnableAspectJAutoProxy
+``` 
+
+**Pointcut Declaractions**
+
+<img src="https://user-images.githubusercontent.com/80107049/189891145-6e400f9c-7124-486e-95c9-ce6c53259351.png" width="500" />
+
+
+

@@ -4,6 +4,8 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+
        xsi:schemaLocation="
 		http://www.springframework.org/schema/beans
 		http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -12,7 +14,12 @@
 		http://www.springframework.org/schema/mvc
 		http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/tx
-		http://www.springframework.org/schema/tx/spring-tx.xsd">
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- Add AspectJ autoproxy support for aop-->
+    <aop:aspectj-autoproxy/>
 
     <!-- Add support for component scanning-->
     <context:component-scan base-package="com.tilmeez"/>
@@ -31,9 +38,9 @@
           destroy-method="close">
         <property name="driverClass" value="org.postgresql.Driver"/>
         <property name="jdbcUrl"
-                  value="jdbc:postgresql://ec2-52-212-228-71.eu-west-1.compute.amazonaws.com:5432/d5qnu5vfhts8c2"/>
-        <property name="user" value="fwzrrcowsbvqkl"/>
-        <property name="password" value="78c90ca46782fb3e9a93c90172e8b69e67d49d0135301a54ba46f89791ca13f7"/>
+                  value="jdbc:postgresql://ec2-54-228-201-167.eu-west-1.compute.amazonaws.com:5432/d8rh6dg4t9birm"/>
+        <property name="user" value="lmvjmqhyondvgy"/>
+        <property name="password" value="a2c9381ab120ffbc0e0fdc447bba0cf9bb1dca8c99f5bfa805a11c9a0ed1d631"/>
 
         <!-- these are connection pool properties for C3P0 -->
         <property name="initialPoolSize" value="5"/>

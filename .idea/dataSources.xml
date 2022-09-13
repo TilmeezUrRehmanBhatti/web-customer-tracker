@@ -6,7 +6,7 @@
       <synchronize>true</synchronize>
       <remarks>For Spring MVC-CRUD</remarks>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://ec2-52-212-228-71.eu-west-1.compute.amazonaws.com:5432/d5qnu5vfhts8c2</jdbc-url>
+      <jdbc-url>jdbc:postgresql://ec2-54-228-201-167.eu-west-1.compute.amazonaws.com:5432/d8rh6dg4t9birm</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
   </component>
